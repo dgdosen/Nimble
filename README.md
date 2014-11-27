@@ -47,6 +47,8 @@ expect(ocean.isClean).toEventually(beTruthy())
   - [Supporting Objective-C](#supporting-objective-c)
     - [Properly Handling `nil` in Objective-C Matchers](#properly-handling-nil-in-objective-c-matchers)
 - [Installing Nimble](#installing-nimble)
+  - [Installing Nimble as a Submodule](#installing-nimble-as-a-submodule)
+  - [Installing Nimble via CocoaPods](#installing-nimble-via-cocoapods)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -276,7 +278,12 @@ cases, use the `timeout` parameter:
 expect(ocean).toEventually(contain("starfish"), timeout: 3)
 ```
 
-> Sorry, [Nimble doesn't support specifying custom timeouts in Objective-C yet](https://github.com/Quick/Nimble/issues/25).
+```objc
+// Objective-C
+
+// Waits three seconds for ocean to contain "starfish":
+expect(ocean).withTimeout(3).toEventually(contain(@"starfish"));
+```
 
 You can also provide a callback by using the `waitUntil` function:
 
@@ -301,6 +308,8 @@ waitUntil(timeout: 10) { done in
   done()
 }
 ```
+
+> Sorry, [Nimble doesn't support specifying custom timeouts for waitUntil in Objective-C yet](https://github.com/Quick/Nimble/issues/25).
 
 ## Objective-C Support
 
@@ -859,6 +868,34 @@ expect(nil).to(equal(nil)); // fails
 expect(nil).to(beNil());    // passes
 ```
 
+If your matcher does not want to match with nil, you use `NonNilMatcherFunc`
+and the `canMatchNil` constructor on `NMBObjCMatcher`. Using both types will
+automatically generate expected value failure messages when they're nil.
+
+```swift
+
+public func beginWith<S: SequenceType, T: Equatable where S.Generator.Element == T>(startingElement: T) -> NonNilMatcherFunc<S> {
+    return NonNilMatcherFunc { actualExpression, failureMessage in
+        failureMessage.postfixMessage = "begin with <\(startingElement)>"
+        if let actualValue = actualExpression.evaluate() {
+            var actualGenerator = actualValue.generate()
+            return actualGenerator.next() == startingElement
+        }
+        return false
+    }
+}
+
+extension NMBObjCMatcher {
+    public class func beginWithMatcher(expected: AnyObject) -> NMBObjCMatcher {
+        return NMBObjCMatcher(canMatchNil: false) { actualExpression, failureMessage, location in
+            let actual = actualExpression.evaluate()
+            let expr = actualExpression.cast { $0 as? NMBOrderedCollection }
+            return beginWith(expected).matches(expr, failureMessage: failureMessage)
+        }
+    }
+}
+```
+
 # Installing Nimble
 
 > Nimble can be used on its own, or in conjunction with its sister
@@ -868,6 +905,8 @@ expect(nil).to(beNil());    // passes
 
 Nimble can currently be installed in one of two ways: using a pre-release 
 version of CocoaPods, or with git submodules. 
+
+## Installing Nimble as a Submodule
 
 To use Nimble as a submodule to test your iOS or OS X applications, follow these
 4 easy steps:
@@ -881,6 +920,8 @@ For more detailed instructions on each of these steps,
 read [How to Install Quick](https://github.com/Quick/Quick#how-to-install-quick).
 Ignore the steps involving adding Quick to your project in order to
 install just Nimble.
+
+## Installing Nimble via CocoaPods
 
 To use Nimble in CocoaPods to test your iOS or OS X applications, we'll need a 
 *Gemfile* that will specify unreleased versions of CocoaPods. Create an empty 
