@@ -178,6 +178,9 @@ exception once evaluated:
 ```swift
 // Swift
 
+// Note: Swift currently doesn't have exceptions.
+//       Only Objective-C code can raise exceptions
+/        that Nimble will catch.
 let exception = NSException(
   name: NSInternalInconsistencyException,
   reason: "Not enough fish in the sea.",
@@ -309,7 +312,7 @@ waitUntil(timeout: 10) { done in
 }
 ```
 
-> Sorry, [Nimble doesn't support specifying custom timeouts for waitUntil in Objective-C yet](https://github.com/Quick/Nimble/issues/25).
+> Sorry, Nimble doesn't support waitUntil in Objective-C.
 
 ## Objective-C Support
 
@@ -582,6 +585,9 @@ expect(actual).to(raiseException(named: name, reason: reason))
 // Passes if actual, when evaluated, raises an exception:
 expect(actual).to(raiseException())
 ```
+
+Note: Swift currently doesn't have exceptions. Only Objective-C code can raise
+exceptions that Nimble will catch.
 
 > Sorry, [Nimble doesn't support matching on exception `name`, `reason`, or `userInfo` yet](https://github.com/Quick/Nimble/issues/26).
 
