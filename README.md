@@ -72,23 +72,15 @@ Or, in Objective-C:
 XCTAssertEqual(1 + 1, 2, @"expected one plus one to equal two");
 ```
 
-XCTest assertions have several drawbacks:
+XCTest assertions have a couple of drawbacks:
 
 1. **Not enough macros.** There's no easy way to assert that a string
    contains a particular substring, or that a number is less than or
    equal to another.
-2. **No type checking.** It doesn't make sense to comapre a number to
-   a string, but XCTest assertions allow it. Assertions are implemented
-   using macros, so there's no type checking.
-
-   `XCTAssertEqual(1 + 1, "2")` compiles and runs--you won't
-   find out that you've made an impossible comparison until the test
-   runs and fails. That could take seconds, or even minutes in larger test
-   suites.
-3. **It's hard to write asynchronous tests.** XCTest forces you to write
+2. **It's hard to write asynchronous tests.** XCTest forces you to write
    a lot of boilerplate code.
 
-Nimble addresses all three of these concerns.
+Nimble addresses these concerns.
 
 # Nimble: Expectations Using `expect(...).to`
 
@@ -300,6 +292,16 @@ waitUntil { done in
 }
 ```
 
+```objc
+// Objective-C
+
+waitUntil(^(void (^done)(void)){
+  // do some stuff that takes a while...
+  [NSThread sleepForTimeInterval:0.5];
+  done();
+});
+```
+
 `waitUntil` also optionally takes a timeout parameter:
 
 ```swift
@@ -312,7 +314,15 @@ waitUntil(timeout: 10) { done in
 }
 ```
 
-> Sorry, Nimble doesn't support waitUntil in Objective-C.
+```objc
+// Objective-C
+
+waitUntilTimeout(10, ^(void (^done)(void)){
+  // do some stuff that takes a while...
+  [NSThread sleepForTimeInterval:1];
+  done();
+});
+```
 
 ## Objective-C Support
 
@@ -479,6 +489,38 @@ expect(10.01).to(beCloseTo(10, within: 0.1))
 // Objective-C
 
 expect(@(10.01)).to(beCloseTo(@10).within(0.1));
+```
+
+There is also an operator shortcut available in Swift:
+
+```swift
+// Swift
+
+expect(actual) ≈ expected
+expect(actual) ≈ (expected, delta)
+
+```
+(Type Option-x to get ≈ on a U.S. keyboard)
+
+The former version uses the default delta of 0.0001. Here is yet another way to do this:
+
+```swift
+// Swift
+
+expect(actual) ≈ expected ± delta
+expect(actual) == expected ± delta
+
+```
+(Type Option-Shift-= to get ± on a U.S. keyboard)
+
+If you are comparing arrays of floating point numbers, you'll find the following useful:
+
+```swift
+// Swift
+
+expect([0.0, 2.0]) ≈ [0.0001, 2.0001]
+expect([0.0, 2.0]).to(beCloseTo([0.1, 2.1], within: 0.1))
+
 ```
 
 > Values given to the `beCloseTo` matcher must be coercable into a
