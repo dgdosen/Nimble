@@ -172,12 +172,22 @@ exception once evaluated:
 
 // Note: Swift currently doesn't have exceptions.
 //       Only Objective-C code can raise exceptions
-/        that Nimble will catch.
+//       that Nimble will catch.
 let exception = NSException(
   name: NSInternalInconsistencyException,
   reason: "Not enough fish in the sea.",
-  userInfo: nil)
+  userInfo: ["something": "is fishy"])
 expect(exception.raise()).to(raiseException())
+
+// Also, you can customize raiseException to be more specific
+expect(exception.raise()).to(raiseException(named: NSInternalInconsistencyException))
+expect(exception.raise()).to(raiseException(
+    named: NSInternalInconsistencyException,
+    reason: "Not enough fish in the sea"))
+expect(exception.raise()).to(raiseException(
+    named: NSInternalInconsistencyException,
+    reason: "Not enough fish in the sea",
+    userInfo: ["something": "is fishy"]))
 ```
 
 Objective-C works the same way, but you must use the `expectAction`
@@ -191,6 +201,16 @@ NSException *exception = [NSException exceptionWithName:NSInternalInconsistencyE
                                                  reason:@"Not enough fish in the sea."
                                                userInfo:nil];
 expectAction([exception raise]).to(raiseException());
+
+// Use the property-block syntax to be more specific.
+expectAction([exception raise]).to(raiseException().named(NSInternalInconsistencyException));
+expectAction([exception raise]).to(raiseException().
+    named(NSInternalInconsistencyException).
+    reason("Not enough fish in the sea"));
+expectAction([exception raise]).to(raiseException().
+    named(NSInternalInconsistencyException).
+    reason("Not enough fish in the sea").
+    userInfo(@{@"something": @"is fishy"}));
 ```
 
 In Swift, the `expect` function can also take a trailing closure:
@@ -971,24 +991,9 @@ install just Nimble.
 
 ## Installing Nimble via CocoaPods
 
-To use Nimble in CocoaPods to test your iOS or OS X applications, we'll need a 
-*Gemfile* that will specify unreleased versions of CocoaPods. Create an empty 
-file called "Gemfile" in your project's directory and add the following lines. 
-
-```ruby
-source 'https://rubygems.org'
-
-gem 'cocoapods', :git => 'https://github.com/CocoaPods/CocoaPods.git', :branch => 'swift'
-gem 'cocoapods-core', :git => 'https://github.com/CocoaPods/Core.git', :branch => 'swift'
-gem 'xcodeproj',  :git => "https://github.com/CocoaPods/Xcodeproj.git", :branch => 'ext_build_settings'
-```
-
-Now that you have these specified, run `bundle install` from the command line in
-that directory. This will install the prerelease version of CocoaPods. To run
-this version, you'll need to type `bundle exec` in front of your pod commands. 
-
-In that directory, run `bundle exec pod init` to create a blank podfile. iIt 
-will look something like the following (add the line for Nimble).
+To use Nimble in CocoaPods to test your iOS or OS X applications, we'll need to 
+install 0.36 Beta 1 of CocoaPods. Do so using the command `[sudo] gem install cocoapods --pre`. 
+Then just add Nimble to your podfile.
 
 ```ruby
 platform :ios, '8.0'
@@ -997,8 +1002,8 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 # Whatever pods you need for your app go here
 
-target 'YOUR_APP_NAME_HERE_Tests' do
-  pod 'Nimble', :git => "https://github.com/Quick/Nimble"
+target 'YOUR_APP_NAME_HERE_Tests', :exclusive => true do
+  pod 'Nimble'
 end
 ```
 
