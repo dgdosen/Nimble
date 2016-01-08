@@ -197,7 +197,7 @@ expect(10) > 2
 
 ## Lazily Computed Values
 
-The `expect` function doesn't evalaute the value it's given until it's
+The `expect` function doesn't evaluate the value it's given until it's
 time to match. So Nimble can test whether an expression raises an
 exception once evaluated:
 
@@ -475,10 +475,6 @@ expect(actual).to(beIdenticalTo(expected));
 expect(actual).toNot(beIdenticalTo(expected));
 ```
 
-> `beIdenticalTo` only supports Objective-C objects: subclasses
-  of `NSObject`, or Swift objects bridged to Objective-C with the
-  `@objc` prefix.
-
 ## Comparisons
 
 ```swift
@@ -620,7 +616,7 @@ expect(dolphin).to(beAKindOf([Mammal class]));
 ## Truthiness
 
 ```swift
-// Passes if actual is not nil, false, or an object with a boolean value of false:
+// Passes if actual is not nil, true, or an object with a boolean value of true:
 expect(actual).to(beTruthy())
 
 // Passes if actual is only true (not nil or an object conforming to BooleanType true):
@@ -639,7 +635,7 @@ expect(actual).to(beNil())
 ```objc
 // Objective-C
 
-// Passes if actual is not nil, false, or an object with a boolean value of false:
+// Passes if actual is not nil, true, or an object with a boolean value of true:
 expect(actual).to(beTruthy());
 
 // Passes if actual is only true (not nil or an object conforming to BooleanType true):
@@ -1092,10 +1088,6 @@ extension NMBObjCMatcher {
 Nimble can currently be installed in one of two ways: using CocoaPods, or with
 git submodules.
 
-- The `swift-2.0` branch support Swift 2.0.
-- The `master` branch of Nimble supports Swift 1.2.
-- For Swift 1.1 support, use the `swift-1.1` branch.
-
 ## Installing Nimble as a Submodule
 
 To use Nimble as a submodule to test your iOS or OS X applications, follow these
@@ -1126,12 +1118,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 target 'YOUR_APP_NAME_HERE_Tests', :exclusive => true do
   use_frameworks!
-  # If you're using Swift 2.0 (Xcode 7), use this:
-  pod 'Nimble', '2.0.0-rc.2'
-  # If you're using Swift 1.2 (Xcode 6), use this:
-  pod 'Nimble', '~> 1.0.0'
-  # Otherwise, use this commented out line for Swift 1.1 (Xcode 6.2):
-  # pod 'Nimble', '~> 0.3.0'
+  pod 'Nimble', '~> 3.0.0'
 end
 ```
 
